@@ -152,9 +152,8 @@ return lancer;
 
 function ask(player,adversaire){
 
-nbde = 5;
 
-nbj = prompt("Combien d'opposant voulez-vous jouer? (min 1, max 7)");
+nbj = prompt("Combien d'opposant voulez-vous jouer? (min 1, max 10)");
 
 
 for (let compt = 0; compt<nbj; compt++){
@@ -165,12 +164,15 @@ for (let compt = 0; compt<nbj; compt++){
     adv.setAttribute('id','dealer'+compt);
     document.querySelector('#app').append(adv);
     adversaire= '#dealer'+compt;
+    nbde = 2;
     eco(nbde,adversaire);
 
 }
 
 adversaire= '#dealer'; // river, card in the center
 eco(nbde,player);
+
+nbde = 5;
 eco(nbde,adversaire);// river, card in the center
 
 
