@@ -10,10 +10,23 @@ adv.classList.add("board");
 adv.setAttribute('id','dealer');
 document.querySelector('#app').append(adv);
 
+const pot = document.createElement('output');
+pot.setAttribute('id','pot');
+pot.textContent = "pot:";
+document.querySelector('#dealer').append(pot);
+
+console.log(document.querySelector('#dealer'));
+
 const player = '#player';
 const adversaire = '#dealer';
+let box = '#boxui';
 const deck = [];
 const throwcard = [];
+let money =1000;
+let turn = 0;
+const yourenemy = [];
+let potvalue=0;
+let gameover=false;
 
 
 class Card {
@@ -31,6 +44,112 @@ class Card {
     }
 
 };
+
+
+class Enemy {
+
+    constructor(name,id){
+
+        this.name=name;
+        this.money=1000;
+        this.id=id;
+
+
+    }
+
+    allin(){
+
+        this.money=0;
+        return this.money;
+
+    }
+
+
+    double(){
+
+        this.money=this.money-200;
+        return this.money;
+
+    }
+
+    suivre(){
+
+        this.money=this.money-100;
+        return this.money;
+
+    }
+
+    coucher(){
+
+        alert("adversaire "+this.name+"has coucher!")
+        return this.money;
+
+
+    }
+
+}
+
+
+
+function initUI(adversaire,box){
+
+    const output = document.createElement('output');
+    output.textContent = "1000";
+    output.style.marginTop = '1em';
+    output.style.border = "solid";
+    output.style.padding = "1em";
+    output.setAttribute('id',adversaire);
+  
+
+    const coucher = document.createElement('buttom');
+    coucher.textContent = "coucher";
+    coucher.style.marginTop = '1em';
+    coucher.style.border = "solid";
+    coucher.style.padding = "1em";
+    coucher.setAttribute('id',adversaire+'coucher');
+  
+    
+    const suivre = document.createElement('buttom');
+    suivre.textContent = "suivre";
+    suivre.style.marginTop = '1em';
+    suivre.style.border = "solid";
+    suivre.style.padding = "1em";
+    suivre.setAttribute('id',adversaire+'suivre');
+
+    
+    const relancer = document.createElement('buttom');
+    relancer.textContent = "relancer";
+    relancer.style.marginTop = '1em';
+    relancer.style.border = "solid";
+    relancer.style.padding = "1em";
+    relancer.setAttribute('id',adversaire+'relancer');
+
+    
+    const allin = document.createElement('buttom');
+    allin.textContent = "allin";
+    allin.style.marginTop = '1em';
+    allin.style.border = "solid";
+    allin.style.padding = "1em";
+    allin.setAttribute('id',adversaire+'allin');
+
+    const boxui = document.createElement('div');
+    boxui.style.display = "flex";
+    boxui.style.flexWrap = "wrap";
+    boxui.style.justifyContent = 'center';
+    boxui.setAttribute('id',box.replace('#', ''));
+
+    console.log(adversaire);
+    console.log( document.querySelector(adversaire));
+    console.log(box,box.replace('#', ''));
+    
+    document.querySelector(adversaire).append(boxui);
+    document.querySelector(box).append(output);
+    document.querySelector(box).append(coucher);
+    document.querySelector(box).append(suivre);
+    document.querySelector(box).append(relancer);
+    document.querySelector(box).append(allin);
+
+}
 
 
 function init (){
@@ -165,14 +284,21 @@ for (let compt = 0; compt<nbj; compt++){
     document.querySelector('#app').append(adv);
     adversaire= '#dealer'+compt;
     nbde = 2;
+    box = '#boxui'+compt;
     eco(nbde,adversaire);
+    initUI(adversaire,box);
+    let enemtemp = "enemy"+compt;
+    const enem = new Enemy(enemtemp,'#dealer'+compt);
+    yourenemy.push(enem);
 
 }
 
 adversaire= '#dealer'; // river, card in the center
-eco(nbde,player);
+eco(nbde,player);   
+box = '#boxui'
+initUI(player,box);
 
-nbde = 5;
+nbde = 3;
 eco(nbde,adversaire);// river, card in the center
 
 
@@ -421,10 +547,88 @@ return visueldé;
 }
 
 
+function game () {
+
+    // adbehavior();
+    console.log(money);
+    let turn =0;
+
+    if (turn<3){
+
+        console.log(turn);
+
+    document.addEventListener('click', e => {
+
+        switch (e.target.id) {
+            case '#playercoucher': alert("coucher, you lose this game");checkturn();if(gameover!=true){adbehavior();pot.textContent=potvalue.toString()};
+                
+                break;
+                
+                case '#playersuivre': checkturn();if(gameover!=true){alert("JOUEUR suivre");adbehavior(); eco(1,adversaire);potvalue=potvalue+100;money=money-100;let mod = document.getElementById('#player');mod.textContent=money.toString();pot.textContent=potvalue.toString()};
+                break;
+        
+                case '#playerrelancer': checkturn();if(gameover!=true){alert("JOUEUR relancer");adbehavior();eco(1,adversaire);potvalue=potvalue+200;money=money-200;let mod2 = document.getElementById('#player');mod2.textContent=money.toString();pot.textContent=potvalue.toString()};
+                
+                break;
+        
+                case '#playerallin': checkturn();if(gameover!=true){alert("JOUEUR allin");adbehavior();potvalue=potvalue+money;money=0;let mod3 = document.getElementById('#player');mod3.textContent=money.toString();console.log(mod3);{eco(1,adversaire)};pot.textContent=potvalue.toString()};
+                
+                break;
+        
+          
+        }
+
+
+        turn = turn+1;
+        console.log(potvalue);
+        console.log(money);
+        console.log(e.target.id);
+        console.log(dealer.childElementCount);
+
+    })} 
+
+
+}
+
+
+function adbehavior(){
+
+  
+    yourenemy.forEach( e => {
+
+    behav = Math.floor(Math.random()*100);
+
+    console.log(behav,behav<50);
+
+    // e.allin();alert(e.name+"allin!");
+
+        if((behav>95)&&(e.money>0)) (potvalue = potvalue+e.money, e.allin(), mod = document.getElementById(e.id),mod.textContent=e.money.toString(),alert(e.name+"allin!")); else if
+
+         ((behav<50)&&(e.money>20))(potvalue= potvalue+200, e.double(),mod = document.getElementById(e.id),mod.textContent=e.money.toString(), alert(e.name+"double!")); else if
+
+        ((behav<10)&&(e.money>10))(potvalue= potvalue+100, e.suivre(),mod = document.getElementById(e.id),mod.textContent=e.money.toString(), alert(e.name+"suis!")); else if
+
+    (11>behav)(e.coucher(),alert(e.name+"coucher!"));
+
+        console.log(e.money,e.name);
+
+    })
+}
+
+
+function checkturn (){
+
+  if  (dealer.childElementCount==7) return (gameover=true, alert("fin de partie"))
+
+
+}
+
+
 ask(player,adversaire);
+console.log(dealer.childElementCount<5)
+console.log(yourenemy);
 
-
-
+game();
 
 
 
