@@ -1,32 +1,44 @@
 
-const visueldé = document.createElement('div');
+
+let visueldé = document.createElement('div');
 visueldé.classList.add("dice");
+
+let boxcard = document.createElement('div');
+boxcard.style.display = "flex";
+boxcard.style.flexWrap = "wrap";
+boxcard.style.justifyContent = 'center';
+boxcard.setAttribute('id', "playercardbox");
+document.querySelector('#player').append(boxcard);
 
 console.log(visueldé);
 console.log(document.querySelector('#player'));
 
-const adv = document.createElement('div');
+let adv = document.createElement('div');
 adv.classList.add("board");
 adv.setAttribute('id','dealer');
 document.querySelector('#app').append(adv);
 
-const pot = document.createElement('output');
+let pot = document.createElement('output');
 pot.setAttribute('id','pot');
 pot.textContent = "pot:";
 document.querySelector('#dealer').append(pot);
 
-console.log(document.querySelector('#dealer'));
 
-const player = '#player';
-const adversaire = '#dealer';
+let playerz = '#player';
+let adversaire = '#dealer';
 let box = '#boxui';
 const deck = [];
 const throwcard = [];
-let money =1000;
 let turn = 0;
 const yourenemy = [];
 let potvalue=0;
 let gameover=false;
+let hide = '';
+let reveal ='';
+let savethetarget="";
+let deckgame = [];
+let nboppo = 0;
+
 
 
 class Card {
@@ -46,6 +58,26 @@ class Card {
 };
 
 
+class Player {
+
+    constructor(){
+
+        this.name="player";
+        this.money=1000;
+
+    }
+
+    getpot(potvalue){
+
+        this.money= this.money+potvalue;
+  
+
+    }
+
+
+}
+
+
 class Enemy {
 
     constructor(name,id){
@@ -53,8 +85,7 @@ class Enemy {
         this.name=name;
         this.money=1000;
         this.id=id;
-
-
+ 
     }
 
     allin(){
@@ -87,6 +118,51 @@ class Enemy {
 
     }
 
+    hidecard(){
+
+        // console.log(this.id,this.id+"cards");
+
+        // console.log(document.querySelector('#dealer1'));
+
+        // console.log(document.querySelector('#dealer1card.dice'));
+
+        // console.log(document.querySelector(this.id+"cards"));
+
+      hide = document.querySelector(this.id+"cards"+0) ;
+
+      hide.style.display = 'none';
+
+      hide = document.querySelector(this.id+"cards"+1) ;
+
+      hide.style.display = 'none';
+
+        return hide;
+
+    }
+
+    revealcard(){
+
+     
+
+        reveal = document.querySelector(this.id+"cards"+0);
+
+        reveal.style.display  = '';
+
+        reveal = document.querySelector(this.id+"cards"+1);
+
+        reveal.style.display  = '';
+
+        return reveal;
+
+    }
+
+    getpot(potvalue){
+
+        this.money= this.money+potvalue;
+
+
+    }
+
 }
 
 
@@ -98,7 +174,7 @@ function initUI(adversaire,box){
     output.style.marginTop = '1em';
     output.style.border = "solid";
     output.style.padding = "1em";
-    output.setAttribute('id',adversaire);
+    output.setAttribute('id',adversaire+'output');
   
 
     const coucher = document.createElement('buttom');
@@ -132,6 +208,19 @@ function initUI(adversaire,box){
     allin.style.padding = "1em";
     allin.setAttribute('id',adversaire+'allin');
 
+    const claimpot = document.createElement('buttom');
+    claimpot.textContent = "claimpot";
+    claimpot.style.marginTop = '1em';
+    claimpot.style.border = "solid";
+    claimpot.style.padding = "1em";
+    claimpot.setAttribute('id',adversaire+'claimpot');
+
+    const boxcard = document.createElement('div');
+    boxcard.style.display = "flex";
+    boxcard.style.flexWrap = "wrap";
+    boxcard.style.justifyContent = 'center';
+    boxcard.setAttribute('id',adversaire+"cardbox");
+
     const boxui = document.createElement('div');
     boxui.style.display = "flex";
     boxui.style.flexWrap = "wrap";
@@ -142,12 +231,16 @@ function initUI(adversaire,box){
     console.log( document.querySelector(adversaire));
     console.log(box,box.replace('#', ''));
     
+    document.querySelector(adversaire).append(boxcard);
     document.querySelector(adversaire).append(boxui);
     document.querySelector(box).append(output);
     document.querySelector(box).append(coucher);
     document.querySelector(box).append(suivre);
     document.querySelector(box).append(relancer);
     document.querySelector(box).append(allin);
+    document.querySelector(box).append(claimpot);
+
+console.log(boxcard);
 
 }
 
@@ -269,11 +362,28 @@ return lancer;
 }
 
 
-function ask(player,adversaire){
+function ask(playerz,adversaire){
 
 
 nbj = prompt("Combien d'opposant voulez-vous jouer? (min 1, max 10)");
+nboppo=nbj;
+nbde = 2;
 
+eco(nbde,playerz);   
+box = '#boxui';
+initUI(playerz,box);
+
+nbde = 3;
+adversaire= '#dealer'; // river, card in the center
+
+let boxcard = document.createElement('div');
+boxcard.style.display = "flex";
+boxcard.style.flexWrap = "wrap";
+boxcard.style.justifyContent = 'center';
+boxcard.setAttribute('id', "dealercardbox");
+document.querySelector('#dealer').append(boxcard);
+
+eco(nbde,adversaire);// river, card in the center
 
 for (let compt = 0; compt<nbj; compt++){
 
@@ -285,21 +395,24 @@ for (let compt = 0; compt<nbj; compt++){
     adversaire= '#dealer'+compt;
     nbde = 2;
     box = '#boxui'+compt;
+
+    let boxcard = document.createElement('div');
+    boxcard.style.display = "flex";
+    boxcard.style.flexWrap = "wrap";
+    boxcard.style.justifyContent = 'center';
+    boxcard.setAttribute('id', "dealer"+compt+"cardbox");
+    document.querySelector(adversaire).append(boxcard);
+
+
     eco(nbde,adversaire);
     initUI(adversaire,box);
     let enemtemp = "enemy"+compt;
     const enem = new Enemy(enemtemp,'#dealer'+compt);
     yourenemy.push(enem);
 
+    yourenemy.forEach(e => e.hidecard());
+
 }
-
-adversaire= '#dealer'; // river, card in the center
-eco(nbde,player);   
-box = '#boxui'
-initUI(player,box);
-
-nbde = 3;
-eco(nbde,adversaire);// river, card in the center
 
 
 return nbde; 
@@ -307,7 +420,7 @@ return nbde;
 }
 
 
-function eco (nbde,player,adversaire) {
+function eco (nbde,playerz,adversaire) {
 
 
 for (let compt=0; compt<nbde; compt++) {
@@ -316,12 +429,20 @@ for (let compt=0; compt<nbde; compt++) {
     
     visueldé.classList.add("dice");
 
+    visueldé.setAttribute('id',playerz.substring(1)+"cards"+compt)
+
+    deckgame.push(visueldé);
 
     // console.log(player,adversaire);
 
-    document.querySelector(player).append(visueldé);
+    console.log(playerz);
+
+    console.log(document.querySelector(playerz+"cardbox"));
+
+    document.querySelector(playerz+"cardbox").append(visueldé);
 
     let delay = -68;
+
 
     switch (random()) {
 
@@ -533,7 +654,7 @@ for (let compt=0; compt<nbde; compt++) {
             
             break;
             
-        default:visueldé.style.backgroundPositionX = '0px';
+        default:visueldé.style.backgroundColor = 'black';
             break;
     }
 
@@ -550,8 +671,9 @@ return visueldé;
 function game () {
 
     // adbehavior();
-    console.log(money);
+    console.log(player.money);
     let turn =0;
+    
 
     if (turn<3){
 
@@ -559,30 +681,41 @@ function game () {
 
     document.addEventListener('click', e => {
 
+        savethetarget = e.target.id.replace("#","").replace("claimpot","");
+
         switch (e.target.id) {
-            case '#playercoucher': alert("coucher, you lose this game");checkturn();if(gameover!=true){adbehavior();pot.textContent=potvalue.toString()};
+            case '#playercoucher': alert("coucher, you lose this game");checkturn();if(gameover!=true){adbehavior();pot.textContent=potvalue};
                 
                 break;
                 
-                case '#playersuivre': checkturn();if(gameover!=true){alert("JOUEUR suivre");adbehavior(); eco(1,adversaire);potvalue=potvalue+100;money=money-100;let mod = document.getElementById('#player');mod.textContent=money.toString();pot.textContent=potvalue.toString()};
-                break;
-        
-                case '#playerrelancer': checkturn();if(gameover!=true){alert("JOUEUR relancer");adbehavior();eco(1,adversaire);potvalue=potvalue+200;money=money-200;let mod2 = document.getElementById('#player');mod2.textContent=money.toString();pot.textContent=potvalue.toString()};
-                
+                case '#playersuivre': checkturn();if(gameover!=true){alert("JOUEUR suivre");adbehavior(); eco(1,adversaire);potvalue=potvalue+100;player.money=player.money-100;let mod = document.getElementById('#player'+"output");mod.textContent=player.money;pot.textContent=potvalue};
                 break;
         
-                case '#playerallin': checkturn();if(gameover!=true){alert("JOUEUR allin");adbehavior();potvalue=potvalue+money;money=0;let mod3 = document.getElementById('#player');mod3.textContent=money.toString();console.log(mod3);{eco(1,adversaire)};pot.textContent=potvalue.toString()};
+                case '#playerrelancer': checkturn();if(gameover!=true){alert("JOUEUR relancer");adbehavior();eco(1,adversaire);potvalue=potvalue+200;player.money=player.money-200;let mod2 = document.getElementById('#player'+"output");mod2.textContent=player.money;pot.textContent=potvalue};
+                
+                break;
+        
+                case '#playerallin': checkturn();if(gameover!=true){alert("JOUEUR allin");adbehavior();potvalue=potvalue+player.money;player.money=0;let mod3 = document.getElementById('#player'+"output");mod3.textContent=player.money;console.log(mod3);{eco(1,adversaire)};pot.textContent=potvalue};
+                
+                break;
+
+
+        }
+
+        switch (e.target.id.slice(-8)) {
+            case "claimpot": 
+            eval(savethetarget).getpot(potvalue);potvalue=0;console.log(player);
                 
                 break;
         
           
         }
 
-
+        
         turn = turn+1;
         console.log(potvalue);
-        console.log(money);
-        console.log(e.target.id);
+        console.log(player.money);
+        console.log(e.target.id,savethetarget,e.target.id.slice(-8));
         console.log(dealer.childElementCount);
 
     })} 
@@ -602,15 +735,17 @@ function adbehavior(){
 
     // e.allin();alert(e.name+"allin!");
 
-        if((behav>95)&&(e.money>0)) (potvalue = potvalue+e.money, e.allin(), mod = document.getElementById(e.id),mod.textContent=e.money.toString(),alert(e.name+"allin!")); else if
+        if((behav>95)&&(e.money>0)) (potvalue = potvalue+e.money, e.allin(), mod = document.getElementById(e.id+"output"),mod.textContent=e.money.toString(),alert(e.name+"allin!")); else if
 
-         ((behav<50)&&(e.money>20))(potvalue= potvalue+200, e.double(),mod = document.getElementById(e.id),mod.textContent=e.money.toString(), alert(e.name+"double!")); else if
+         ((behav<50)&&(e.money>20))(potvalue= potvalue+200, e.double(),mod = document.getElementById(e.id+"output"),mod.textContent=e.money.toString(), alert(e.name+"double!")); else if
 
-        ((behav<10)&&(e.money>10))(potvalue= potvalue+100, e.suivre(),mod = document.getElementById(e.id),mod.textContent=e.money.toString(), alert(e.name+"suis!")); else if
+        ((behav<10)&&(e.money>10))(potvalue= potvalue+100, e.suivre(),mod = document.getElementById(e.id+"output"),mod.textContent=e.money.toString(), alert(e.name+"suis!")); else if
 
     (11>behav)(e.coucher(),alert(e.name+"coucher!"));
 
         console.log(e.money,e.name);
+
+        console.log(hide);
 
     })
 }
@@ -618,15 +753,61 @@ function adbehavior(){
 
 function checkturn (){
 
-  if  (dealer.childElementCount==7) return (gameover=true, alert("fin de partie"))
+    console.log(savethetarget);
 
+  if  (dealercardbox.childElementCount==6) return (gameover=true,yourenemy.forEach( e => e.revealcard()) ,alert("fin de partie, redistribution des cartes dans 3 secondes..."),
+  
+    console.log(document.querySelector('#dealer1cards1')),console.log(document.querySelector('#dealer1')),
+    
+
+    setTimeout(function() {
+        deletet(), gameover=false, eco(2,playerz), eco(3,adversaire);yourenemy.forEach(e => e.hidecard());
+      }, 3000)
+
+          
+     )
+    
+}
+
+
+function deletet(){
+
+
+    test = document.querySelector('#playercardbox'), 
+
+     test.innerHTML="";
+
+     test = document.querySelector('#dealercardbox'), 
+
+     test.innerHTML="";
+
+
+        for (let compt=0; compt<nboppo; compt++) {
+
+
+            test = document.querySelector('#dealer'+compt+'cardbox'), 
+
+            test.innerHTML="";
+       
+
+        }
+
+        for (let compt=0; compt<nboppo; compt++) {
+
+
+            eco(2,adversaire+compt); 
+       
+
+        }
 
 }
 
 
-ask(player,adversaire);
+player = new Player();
+ask(playerz,adversaire);
 console.log(dealer.childElementCount<5)
 console.log(yourenemy);
+
 
 game();
 
