@@ -39,7 +39,7 @@ let playerz = '#player';
 let adversaire = '#dealer';
 let box = '#boxui';
 const deck = [];
-const throwcard = [];
+let throwcard = [];
 let turn = 0;
 const yourenemy = [];
 let potvalue=0;
@@ -766,12 +766,7 @@ function game () {
 
     // adbehavior();
     console.log(player.money);
-    let turn =0;
-    
 
-    if (turn<3){
-
-        console.log(turn);
 
     document.addEventListener('click', e => {
 
@@ -782,7 +777,7 @@ function game () {
         savethetarget = e.target.id.replace("#","").replace("claimpot","");
 
         switch (e.target.id) {
-            case '#playercoucher': player.coucher();checkturn();if(gameover!=true){adbehavior();eco(1,adversaire);pot.textContent=potvalue};
+            case '#playercoucher': ;checkturn();player.coucher();if(gameover!=true){adbehavior();eco(1,adversaire);pot.textContent=potvalue};
                 
                 break;
                 
@@ -829,7 +824,7 @@ function game () {
             savethetarget = e.target.id.replace("#","").replace("claimpot","");
     
             switch (e.target.id) {
-                case '#playercoucher': player.coucher();checkturn();{adbehavior();pot.textContent=potvalue};gameover=true;
+                case '#playercoucher': checkturn();player.coucher();{adbehavior();pot.textContent=potvalue};gameover=true;
                     
                     break;
                     
@@ -870,16 +865,16 @@ function game () {
               
             }
         
-        turn = turn+1;
-        console.log(potvalue);
-        console.log(player.money);
-        console.log(e.target.id,savethetarget,e.target.id.slice(-8));
-        console.log(dealer.childElementCount);
+   
+        // console.log(potvalue);
+        // console.log(player.money);
+        // console.log(e.target.id,savethetarget,e.target.id.slice(-8));
+        // console.log(dealer.childElementCount);
 
     })} 
 
 
-}
+
 
 
 function adbehavior(){
@@ -910,7 +905,7 @@ function adbehavior(){
       
           relancer = document.getElementById(e.id + "relancer");
           relancer.style.backgroundColor = "red";
-        } else if ((behav < 10) && (e.money > 10)) {
+        } else { if ((behav < 10) && (e.money > 10)) {
           potvalue += 100;
           e.suivre();
           mod = document.getElementById(e.id + "output");
@@ -920,13 +915,13 @@ function adbehavior(){
           suivre.style.backgroundColor = "red";
        
         } else {
-          if (11 > behav) {
+          
             e.coucher();
             coucher = document.getElementById(e.id + "coucher");
             coucher.style.backgroundColor = "red";
-          }
+          
         }
-      }
+      }}
    
         //    console.log(e.money,e.name);
    
@@ -1026,6 +1021,9 @@ function deletet(){
 
             coucher = document.getElementById('#playercoucher');
             coucher.style.backgroundColor = "";
+
+            turn=0;
+            throwcard=[];
 
 }
 
