@@ -49,7 +49,7 @@ let reveal ='';
 let savethetarget="";
 let deckgame = [];
 let nboppo = 0;
-let checkout = false;
+let loading = false;
 
 
 class Card {
@@ -767,10 +767,16 @@ function game () {
     // adbehavior();
     console.log(player.money);
 
+    if (loading==false){
 
-    document.addEventListener('click', e => {
+
+        document.addEventListener('click', gamelistener)}}
 
 
+
+   
+
+        function gamelistener(e){
         
   if  (dealercardbox.childElementCount<5){
 
@@ -871,7 +877,7 @@ function game () {
         // console.log(e.target.id,savethetarget,e.target.id.slice(-8));
         // console.log(dealer.childElementCount);
 
-    })} 
+    }
 
 
 
@@ -936,7 +942,7 @@ function checkturn (){
 
     console.log(savethetarget);
 
-  if  (gameover==true) return (yourenemy.forEach( e => e.revealcard()) ,
+  if  (gameover==true) return (yourenemy.forEach( e => e.revealcard()) , 
 
    newevent = document.createElement('li'),
   newevent.textContent = "Game over, the game is going to restart in 5 secs, please wait...",
@@ -944,10 +950,13 @@ function checkturn (){
 
   
     console.log(document.querySelector('#dealer1cards1')),console.log(document.querySelector('#dealer1')),
+
+
+    document.removeEventListener('click',gamelistener),
     
 
     setTimeout(function() {
-        deletet(), gameover=false, eco(2,playerz), eco(3,adversaire);yourenemy.forEach(e => e.hidecard());
+        deletet(), gameover=false, eco(2,playerz), eco(3,adversaire);yourenemy.forEach(e => e.hidecard());game();
       }, 5000)
 
           
