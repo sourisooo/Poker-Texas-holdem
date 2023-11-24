@@ -1,5 +1,4 @@
 
-
 let visueldé = document.createElement('div');
 visueldé.classList.add("dice");
 
@@ -24,6 +23,18 @@ pot.textContent = "pot:";
 document.querySelector('#dealer').append(pot);
 
 
+let ui = document.createElement('div');
+ui.setAttribute('id', "ui");
+ui.style.width = '100vw';
+ui.style.height = '20vh';
+ui.style.backgroundColor = 'white';
+ui.style.marginTop = '-30vh';
+ui.style.zIndex = '3';
+document.body.append(ui);
+let listevent = document.createElement('ul');
+listevent.setAttribute('id',"listevent");
+document.querySelector('#ui').append(listevent);
+
 let playerz = '#player';
 let adversaire = '#dealer';
 let box = '#boxui';
@@ -38,7 +49,7 @@ let reveal ='';
 let savethetarget="";
 let deckgame = [];
 let nboppo = 0;
-
+let checkout = false;
 
 
 class Card {
@@ -63,16 +74,78 @@ class Player {
     constructor(){
 
         this.name="player";
-        this.money=1000;
+        this.money=10000;
 
     }
 
     getpot(potvalue){
 
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" claim the pot for"+potvalue;
+        document.querySelector('#listevent').prepend(newevent);
+
         this.money= this.money+potvalue;
   
 
     }
+
+    allin(){
+
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" all-in for "+this.money;
+        document.querySelector('#listevent').append(newevent);
+
+        let allin = document.getElementById('#playerallin');
+        allin.style.backgroundColor = "red";
+
+        this.money=0;
+        return this.money;
+
+    }
+
+
+    double(){
+
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" double for 200";
+        document.querySelector('#listevent').append(newevent);
+        
+        let relancer = document.getElementById('#playerrelancer');
+        relancer.style.backgroundColor = "red";
+
+        this.money=this.money-200;
+        return this.money;
+
+    }
+
+    suivre(){
+
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" follow for 100";
+        document.querySelector('#listevent').append(newevent);
+
+        let suivre = document.getElementById('#playersuivre');
+        suivre.style.backgroundColor = "red";
+
+        this.money=this.money-100;
+        return this.money;
+
+    }
+
+    coucher(){
+
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" coucher";
+        document.querySelector('#listevent').append(newevent);
+        
+       let coucher = document.getElementById('#playercoucher');
+        coucher.style.backgroundColor = "red";
+
+        return this.money;
+
+
+    }
+
 
 
 }
@@ -83,12 +156,16 @@ class Enemy {
     constructor(name,id){
 
         this.name=name;
-        this.money=1000;
+        this.money=10000;
         this.id=id;
  
     }
 
     allin(){
+
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" all-in for "+this.money;
+        document.querySelector('#listevent').append(newevent);
 
         this.money=0;
         return this.money;
@@ -98,12 +175,20 @@ class Enemy {
 
     double(){
 
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" double for 200";
+        document.querySelector('#listevent').append(newevent);
+
         this.money=this.money-200;
         return this.money;
 
     }
 
     suivre(){
+
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" follow for 100";
+        document.querySelector('#listevent').append(newevent);
 
         this.money=this.money-100;
         return this.money;
@@ -112,7 +197,10 @@ class Enemy {
 
     coucher(){
 
-        alert("adversaire "+this.name+"has coucher!")
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" coucher";
+        document.querySelector('#listevent').prepend(newevent);
+
         return this.money;
 
 
@@ -158,6 +246,10 @@ class Enemy {
 
     getpot(potvalue){
 
+        let newevent = document.createElement('li');
+        newevent.textContent = this.name+" claim the pot for"+potvalue;
+        document.querySelector('#listevent').append(newevent);
+
         this.money= this.money+potvalue;
 
 
@@ -170,7 +262,7 @@ class Enemy {
 function initUI(adversaire,box){
 
     const output = document.createElement('output');
-    output.textContent = "1000";
+    output.textContent = "10000";
     output.style.marginTop = '1em';
     output.style.border = "solid";
     output.style.padding = "1em";
@@ -407,7 +499,7 @@ for (let compt = 0; compt<nbj; compt++){
     eco(nbde,adversaire);
     initUI(adversaire,box);
     let enemtemp = "enemy"+compt;
-    const enem = new Enemy(enemtemp,'#dealer'+compt);
+    let enem = new Enemy(enemtemp,'#dealer'+compt); console.log(enem);
     yourenemy.push(enem);
 
     yourenemy.forEach(e => e.hidecard());
@@ -668,6 +760,8 @@ return visueldé;
 }
 
 
+
+
 function game () {
 
     // adbehavior();
@@ -681,21 +775,25 @@ function game () {
 
     document.addEventListener('click', e => {
 
+
+        
+  if  (dealercardbox.childElementCount<5){
+
         savethetarget = e.target.id.replace("#","").replace("claimpot","");
 
         switch (e.target.id) {
-            case '#playercoucher': alert("coucher, you lose this game");checkturn();if(gameover!=true){adbehavior();pot.textContent=potvalue};
+            case '#playercoucher': player.coucher();checkturn();if(gameover!=true){adbehavior();eco(1,adversaire);pot.textContent=potvalue};
                 
                 break;
                 
-                case '#playersuivre': checkturn();if(gameover!=true){alert("JOUEUR suivre");adbehavior(); eco(1,adversaire);potvalue=potvalue+100;player.money=player.money-100;let mod = document.getElementById('#player'+"output");mod.textContent=player.money;pot.textContent=potvalue};
-                break;
-        
-                case '#playerrelancer': checkturn();if(gameover!=true){alert("JOUEUR relancer");adbehavior();eco(1,adversaire);potvalue=potvalue+200;player.money=player.money-200;let mod2 = document.getElementById('#player'+"output");mod2.textContent=player.money;pot.textContent=potvalue};
-                
+                case '#playersuivre': checkturn();if(gameover!=true){player.suivre();adbehavior(); eco(1,adversaire);potvalue=potvalue+100;let mod = document.getElementById('#player'+"output");mod.textContent=player.money;pot.textContent=potvalue};
                 break;
         
-                case '#playerallin': checkturn();if(gameover!=true){alert("JOUEUR allin");adbehavior();potvalue=potvalue+player.money;player.money=0;let mod3 = document.getElementById('#player'+"output");mod3.textContent=player.money;console.log(mod3);{eco(1,adversaire)};pot.textContent=potvalue};
+                case '#playerrelancer': checkturn();if(gameover!=true){player.double();adbehavior();eco(1,adversaire);potvalue=potvalue+200;let mod2 = document.getElementById('#player'+"output");mod2.textContent=player.money;pot.textContent=potvalue};
+                
+                break;
+        
+                case '#playerallin': checkturn();if(gameover!=true){player.allin();adbehavior();{eco(1,adversaire)};potvalue=potvalue+player.money;let mod3 = document.getElementById('#player'+"output");mod3.textContent=player.money;console.log(mod3);pot.textContent=potvalue};
                 
                 break;
 
@@ -703,14 +801,74 @@ function game () {
         }
 
         switch (e.target.id.slice(-8)) {
-            case "claimpot": 
-            eval(savethetarget).getpot(potvalue);potvalue=0;console.log(player);
+            case "claimpot": console.log(savethetarget);
+
+            if (savethetarget=="player"){eval(savethetarget).getpot(potvalue);potvalue=0;;}else{yourenemy.filter(e => (e.id == "#"+savethetarget)).map(e => {
+
+                    console.log(e.id,e);
+
+                      e.getpot(potvalue);potvalue=0;
+
+            })   
+
+            };
+
+            
                 
                 break;
+            
+            
+            }
         
           
         }
 
+
+        if  (dealercardbox.childElementCount==5){
+
+            savethetarget = e.target.id.replace("#","").replace("claimpot","");
+    
+            switch (e.target.id) {
+                case '#playercoucher': player.coucher();checkturn();{adbehavior();pot.textContent=potvalue};gameover=true;
+                    
+                    break;
+                    
+                    case '#playersuivre': checkturn();{player.suivre();adbehavior(); potvalue=potvalue+100;let mod = document.getElementById('#player'+"output");mod.textContent=player.money;pot.textContent=potvalue};gameover=true;
+                    break;
+            
+                    case '#playerrelancer': checkturn();{player.double();adbehavior();potvalue=potvalue+200;let mod2 = document.getElementById('#player'+"output");mod2.textContent=player.money;pot.textContent=potvalue};gameover=true;
+                    
+                    break;
+            
+                    case '#playerallin': checkturn();{player.allin();adbehavior();potvalue=potvalue+player.money;let mod3 = document.getElementById('#player'+"output");mod3.textContent=player.money;console.log(mod3);pot.textContent=potvalue};gameover=true;
+                    
+                    break;
+    
+    
+            }
+    
+            switch (e.target.id.slice(-8)) {
+                case "claimpot": console.log(savethetarget);
+    
+                if (savethetarget=="player"){eval(savethetarget).getpot(potvalue);potvalue=0;;}else{yourenemy.filter(e => (e.id == "#"+savethetarget)).map(e => {
+    
+                        console.log(e.id,e);
+    
+                          e.getpot(potvalue);potvalue=0;
+    
+                })   
+    
+                };
+    
+                
+                    
+                    break;
+                
+                
+                }
+            
+              
+            }
         
         turn = turn+1;
         console.log(potvalue);
@@ -735,19 +893,47 @@ function adbehavior(){
 
     // e.allin();alert(e.name+"allin!");
 
-        if((behav>95)&&(e.money>0)) (potvalue = potvalue+e.money, e.allin(), mod = document.getElementById(e.id+"output"),mod.textContent=e.money.toString(),alert(e.name+"allin!")); else if
-
-         ((behav<50)&&(e.money>20))(potvalue= potvalue+200, e.double(),mod = document.getElementById(e.id+"output"),mod.textContent=e.money.toString(), alert(e.name+"double!")); else if
-
-        ((behav<10)&&(e.money>10))(potvalue= potvalue+100, e.suivre(),mod = document.getElementById(e.id+"output"),mod.textContent=e.money.toString(), alert(e.name+"suis!")); else if
-
-    (11>behav)(e.coucher(),alert(e.name+"coucher!"));
-
-        console.log(e.money,e.name);
-
-        console.log(hide);
+    if ((behav > 95) && (e.money > 0)) {
+        potvalue += e.money;
+        e.allin();
+        mod = document.getElementById(e.id + "output");
+        mod.textContent = e.money.toString();
+      
+        allin = document.getElementById(e.id + "allin");
+        allin.style.backgroundColor = "red";
+      } else {
+        if ((behav < 50) && (e.money > 20)) {
+          potvalue += 200;
+          e.double();
+          mod = document.getElementById(e.id + "output");
+          mod.textContent = e.money.toString();
+      
+          relancer = document.getElementById(e.id + "relancer");
+          relancer.style.backgroundColor = "red";
+        } else if ((behav < 10) && (e.money > 10)) {
+          potvalue += 100;
+          e.suivre();
+          mod = document.getElementById(e.id + "output");
+          mod.textContent = e.money.toString();
+      
+          suivre = document.getElementById(e.id + "suivre");
+          suivre.style.backgroundColor = "red";
+       
+        } else {
+          if (11 > behav) {
+            e.coucher();
+            coucher = document.getElementById(e.id + "coucher");
+            coucher.style.backgroundColor = "red";
+          }
+        }
+      }
+   
+        //    console.log(e.money,e.name);
+   
+        //    console.log(hide);
 
     })
+
 }
 
 
@@ -755,14 +941,19 @@ function checkturn (){
 
     console.log(savethetarget);
 
-  if  (dealercardbox.childElementCount==6) return (gameover=true,yourenemy.forEach( e => e.revealcard()) ,alert("fin de partie, redistribution des cartes dans 3 secondes..."),
+  if  (gameover==true) return (yourenemy.forEach( e => e.revealcard()) ,
+
+   newevent = document.createElement('li'),
+  newevent.textContent = "Game over, the game is going to restart in 5 secs, please wait...",
+  document.querySelector('#listevent').prepend(newevent),
+
   
     console.log(document.querySelector('#dealer1cards1')),console.log(document.querySelector('#dealer1')),
     
 
     setTimeout(function() {
         deletet(), gameover=false, eco(2,playerz), eco(3,adversaire);yourenemy.forEach(e => e.hidecard());
-      }, 3000)
+      }, 5000)
 
           
      )
@@ -778,6 +969,10 @@ function deletet(){
      test.innerHTML="";
 
      test = document.querySelector('#dealercardbox'), 
+
+     test.innerHTML="";
+
+     test = document.querySelector('#listevent'), 
 
      test.innerHTML="";
 
@@ -800,6 +995,38 @@ function deletet(){
 
         }
 
+
+        yourenemy.forEach(e => 
+            
+            {
+                mod = document.getElementById(e.id + "suivre");
+                mod.style.backgroundColor='';
+
+                mod = document.getElementById(e.id + "relancer");
+                mod.style.backgroundColor='';
+
+                mod = document.getElementById(e.id + "coucher");
+                mod.style.backgroundColor='';
+
+                mod = document.getElementById(e.id + "allin");
+                mod.style.backgroundColor='';
+
+            }
+
+            )
+
+            relancer = document.getElementById('#playerrelancer');
+            relancer.style.backgroundColor = "";
+
+            suivre = document.getElementById('#playersuivre');
+            suivre.style.backgroundColor = "";
+
+            allin = document.getElementById('#playerallin');
+            allin.style.backgroundColor = "";
+
+            coucher = document.getElementById('#playercoucher');
+            coucher.style.backgroundColor = "";
+
 }
 
 
@@ -807,6 +1034,8 @@ player = new Player();
 ask(playerz,adversaire);
 console.log(dealer.childElementCount<5)
 console.log(yourenemy);
+console.log(dealercardbox.lastChild, typeof dealercardbox);
+console.log(document.getElementById('#playerallin'));
 
 
 game();
